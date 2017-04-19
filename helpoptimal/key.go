@@ -23,6 +23,16 @@ func newKey() *key {
 	k.maxValue2 = 0.9*math.MaxFloat64
 	return k
 }
+func newKeyValue(value float64) *key {
+	k := new(key)
+	k.value = value
+	k.minValue0 = -math.MaxFloat64
+	k.minValue1 = -0.95*math.MaxFloat64
+	k.maxValue0 = math.MaxFloat64
+	k.maxValue1 = 0.95*math.MaxFloat64
+	k.maxValue2 = 0.9*math.MaxFloat64
+	return k
+}
 func (k *key) compareTo(o *key) bool {
 	return k.value < o.value
 }
