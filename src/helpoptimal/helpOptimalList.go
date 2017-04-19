@@ -1,15 +1,15 @@
 package helpoptimal
 
 
-type helpOptimalLFList struct {
+type HelpOptimalLFList struct {
 	head *node
 	headNext *node
 	tail *node
 	tailNext *node
 }
 
-func newHelpOptimalLFList() *helpOptimalLFList {
-	hoLFList := new(helpOptimalLFList)
+func NewHelpOptimalLFList() *HelpOptimalLFList {
+	hoLFList := new(HelpOptimalLFList)
 	key := newKey()
 	hoLFList.tailNext = newNodeKey(newKeyValue(key.maxValue0));
         hoLFList.tail = newNodeNext(newKeyValue(key.maxValue1), hoLFList.tailNext);
@@ -18,18 +18,18 @@ func newHelpOptimalLFList() *helpOptimalLFList {
 	return hoLFList
 }
 
-func (hoLFList *helpOptimalLFList) getRef(n *node) *node{
+func (hoLFList *HelpOptimalLFList) getRef(n *node) *node{
 	if n.back == nil {
 		return n
 	} else {
 		return n.next
 	}
 }
-func (hoLFList *helpOptimalLFList) getNext(n *node) *node{
+func (hoLFList *HelpOptimalLFList) getNext(n *node) *node{
 	return hoLFList.getRef(n.next)
 }
 
-func (hoLFList *helpOptimalLFList) contains(k *key) bool{
+func (hoLFList *HelpOptimalLFList) contains(k *key) bool{
 	cur := hoLFList.getNext(hoLFList.headNext);
 	for cur.key.compareTo(k) == true {
 		cur = cur.next
@@ -37,7 +37,7 @@ func (hoLFList *helpOptimalLFList) contains(k *key) bool{
 	return k.equals(cur.key) && cur.next.back == nil;
 }
 
-func (hoLFList *helpOptimalLFList) add(k *key) bool{
+func (hoLFList *HelpOptimalLFList) add(k *key) bool{
 	pre := hoLFList.head
 	suc := hoLFList.headNext
 	cur := hoLFList.headNext
@@ -75,7 +75,7 @@ func (hoLFList *helpOptimalLFList) add(k *key) bool{
 	//Dead Code
 	return false
 }
-func (hoLFList *helpOptimalLFList) remove(k *key) bool {
+func (hoLFList *HelpOptimalLFList) remove(k *key) bool {
 	pre := hoLFList.head
 	suc := hoLFList.headNext
 	cur := hoLFList.headNext
@@ -128,7 +128,7 @@ func (hoLFList *helpOptimalLFList) remove(k *key) bool {
 	//Dead Code
 	return false
 }
-func (hoLFList *helpOptimalLFList) traversalTest() bool {
+func (hoLFList *HelpOptimalLFList) traversalTest() bool {
 	cur := hoLFList.head
 	nex := hoLFList.getRef(cur.next)
 

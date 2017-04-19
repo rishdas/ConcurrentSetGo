@@ -20,7 +20,7 @@ type benchmark struct {
 	presentKeys []int64
 	sanityAdds [][]int64
 	sanityRemoves [][]int64
-	hoLFList *HelpOptimalLFList
+	hoLFList *helpoptimal.HelpOptimalLFList
 }
 func main() {
 	bm := newBenchmark()
@@ -75,5 +75,5 @@ func (bm *benchmark) sanityTest() {
 }
 func (bm *benchmark) defineSet() {
 	fmt.Println("Define Set")
-	bm.hoLFList = newHelpOptimalLFList()
+	bm.hoLFList = helpoptimal.NewHelpOptimalLFList()
 }
