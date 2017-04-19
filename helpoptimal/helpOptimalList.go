@@ -128,3 +128,16 @@ func (hoLFList *helpOptimalLFList) remove(k *key) bool {
 	//Dead Code
 	return false
 }
+func (hoLFList *helpOptimalLFList) traversalTest() bool {
+	cur := hoLFList.head
+	nex := hoLFList.getRef(cur.next)
+
+	for cur != hoLFList.tail {
+		cur = nex
+		nex = hoLFList.getRef(cur.next)
+		if cur.key.compareTo(nex.key) {
+			return false
+		}
+	}
+	return true
+}
