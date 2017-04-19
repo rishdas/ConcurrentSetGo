@@ -1,5 +1,10 @@
 package helpoptimal
 
+import (
+	"unsafe"
+	"sync/atomic"
+)
+
 type node struct {
 	key *key
 	next *node
@@ -25,4 +30,10 @@ func newNodeKey(key *key) *node {
 	newNode.key = key
 	
 	return newNode
+}
+
+func (t *node) casNext(o *node, n *node) bool {
+	oldNext := o.next
+	newNext := n.next
+	return t.next == o && atomic.CompareAndSwapPointer((*unsafe.Pointer)(unsafe.Pointer(&t.next)), unsafe.Pointer(oldNext), unsafe.Pointer(newNext))
 }
