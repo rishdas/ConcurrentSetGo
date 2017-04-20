@@ -25,6 +25,7 @@ type benchmark struct {
 func main() {
 	bm := newBenchmark()
 	bm.initFlags()
+	bm.initializeSet()
 	if *bm.testSanity == true {
 		bm.sanityTest()
 	}
@@ -75,8 +76,26 @@ func (bm *benchmark) sanityTest() {
 	for i := 0; i < *bm.numOfThreads; i++ {
 		go sanityRun(bm, i)
 	}
+	// for k := 0; k < *bm.keySpaceSize; k++ {
+	// 	keyAdded = 
+	// }
 }
 func (bm *benchmark) defineSet() {
 	fmt.Println("Define Set")
 	bm.hoLFList = helpoptimal.NewHelpOptimalLFList()
+}
+
+func (bm *benchmark) initializeSet() {
+	var key int
+	var added bool
+	for i := 0; i < *bm.keySpaceSize; {
+		key = random(0, *bm.keySpaceSize);
+		added = bm.hoLFList.Add(helpoptimal.NewKeyValue(float64(key)))
+		if added == true {
+			i++
+		}
+		if added == true && *bm.testSanity {
+			bm.presentKeys[key]++
+		}
+	}
 }
