@@ -73,12 +73,36 @@ func (bm *benchmark)initFlags() {
 }
 func (bm *benchmark) sanityTest() {
 	fmt.Println("Entering Test Sanity")
+	var keyAdded int
+	var keyRemoved int
 	for i := 0; i < *bm.numOfThreads; i++ {
 		go sanityRun(bm, i)
 	}
-	// for k := 0; k < *bm.keySpaceSize; k++ {
-	// 	keyAdded = 
-	// }
+	failedSanity := false
+	for k := 0; k < *bm.keySpaceSize; k++ {
+		keyAdded = bm.presentKeys[k]
+		keyRemoved = 0
+		for tid := 0; tid < *bm.numOfThreads; tid++ {
+			keyAdded += bm.sanityAdds[tid][k]
+			keyRemoved += bm.sanityRemoves[tid][k]
+		}
+
+		if bm.hoLFList.Contains(helpoptimal.NewKeyValue(float64(k))) == true {
+			if keyAdded != keyRemoved + 1 {
+				fmt.Println("First Sanity passed")
+				failedSanity = true
+			}
+		} else if (keyAdded != keyRemoved) {
+			fmt.Println("Second Sanity passed")
+			failedSanity = true
+		}
+			
+	}
+	if failedSanity == false {
+		fmt.Println("Sanity Test Complete")
+	}
+	fmt.Println("Traversal Test :")
+	fmt.Println(bm.hoLFList.TraversalTest());
 }
 func (bm *benchmark) defineSet() {
 	fmt.Println("Define Set")

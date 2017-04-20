@@ -29,7 +29,7 @@ func (hoLFList *HelpOptimalLFList) getNext(n *node) *node{
 	return hoLFList.getRef(n.next)
 }
 
-func (hoLFList *HelpOptimalLFList) contains(k *key) bool{
+func (hoLFList *HelpOptimalLFList) Contains(k *key) bool{
 	cur := hoLFList.getNext(hoLFList.headNext);
 	for cur.key.compareTo(k) == true {
 		cur = cur.next
@@ -128,7 +128,7 @@ func (hoLFList *HelpOptimalLFList) Remove(k *key) bool {
 	//Dead Code
 	return false
 }
-func (hoLFList *HelpOptimalLFList) traversalTest() bool {
+func (hoLFList *HelpOptimalLFList) TraversalTest() bool {
 	cur := hoLFList.head
 	nex := hoLFList.getRef(cur.next)
 
