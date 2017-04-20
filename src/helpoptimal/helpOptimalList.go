@@ -11,10 +11,10 @@ type HelpOptimalLFList struct {
 func NewHelpOptimalLFList() *HelpOptimalLFList {
 	hoLFList := new(HelpOptimalLFList)
 	key := newKey()
-	hoLFList.tailNext = newNodeKey(newKeyValue(key.maxValue0));
-        hoLFList.tail = newNodeNext(newKeyValue(key.maxValue1), hoLFList.tailNext);
-        hoLFList.headNext = newNodeNext(newKeyValue(key.minValue1), hoLFList.tail);
-        hoLFList.head = newNodeNext(newKeyValue(key.minValue0), hoLFList.headNext);
+	hoLFList.tailNext = newNodeKey(NewKeyValue(key.maxValue0));
+        hoLFList.tail = newNodeNext(NewKeyValue(key.maxValue1), hoLFList.tailNext);
+        hoLFList.headNext = newNodeNext(NewKeyValue(key.minValue1), hoLFList.tail);
+        hoLFList.head = newNodeNext(NewKeyValue(key.minValue0), hoLFList.headNext);
 	return hoLFList
 }
 
@@ -37,7 +37,7 @@ func (hoLFList *HelpOptimalLFList) contains(k *key) bool{
 	return k.equals(cur.key) && cur.next.back == nil;
 }
 
-func (hoLFList *HelpOptimalLFList) add(k *key) bool{
+func (hoLFList *HelpOptimalLFList) Add(k *key) bool{
 	pre := hoLFList.head
 	suc := hoLFList.headNext
 	cur := hoLFList.headNext
@@ -75,7 +75,7 @@ func (hoLFList *HelpOptimalLFList) add(k *key) bool{
 	//Dead Code
 	return false
 }
-func (hoLFList *HelpOptimalLFList) remove(k *key) bool {
+func (hoLFList *HelpOptimalLFList) Remove(k *key) bool {
 	pre := hoLFList.head
 	suc := hoLFList.headNext
 	cur := hoLFList.headNext
@@ -99,7 +99,7 @@ func (hoLFList *HelpOptimalLFList) remove(k *key) bool {
 			if k.equals(cur.key) == false || nex.back != nil {
 				return false
 			}
-			marker = newNodeBack(pre, newKeyValue(nk.minValue0))
+			marker = newNodeBack(pre, NewKeyValue(nk.minValue0))
 			for true {
 				marker.next = nex
 				if cur.casNext(nex, marker) == true {

@@ -23,7 +23,7 @@ func newKey() *key {
 	k.maxValue2 = 0.9*math.MaxFloat64
 	return k
 }
-func newKeyValue(value float64) *key {
+func NewKeyValue(value float64) *key {
 	k := new(key)
 	k.value = value
 	k.minValue0 = -math.MaxFloat64
