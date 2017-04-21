@@ -38,7 +38,7 @@ func newBenchmark() *benchmark {
 }
 func (bm *benchmark)initFlags() {
 	bm.algo = flag.String("a", "HelpOptimalLFList", "Available Algorithms  (default=HelpOptimalLFList)")
-	bm.testSanity = flag.Bool("t", false, "Sanity check (default=false)")
+	bm.testSanity = flag.Bool("t", true, "Sanity check (default=false)")
 	bm.duration = flag.Int("d", 2, "Test duration in seconds (0=infinite, default=2s)")
 	bm.numOfThreads = flag.Int("n", 2, "Number of threads (default=2)")
 	bm.searchFraction = flag.Int("r", 0, "Fraction of search operations (default=0%)")
@@ -48,7 +48,7 @@ func (bm *benchmark)initFlags() {
 	bm.keySpaceSize = flag.Int("k", 100, "Number of possible keys (default=100)")
 
 	flag.Parse()
-	fmt.Println(*bm.insertUpdateFraction + *bm.deleteFraction + *bm.searchFraction)
+	//fmt.Println(*bm.insertUpdateFraction + *bm.deleteFraction + *bm.searchFraction)
 	if (*bm.insertUpdateFraction + *bm.deleteFraction + *bm.searchFraction) > 100 {
 		fmt.Println("(addPercent+removePercent+searchPercent) > 100")
 		os.Exit(1)
