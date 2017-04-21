@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
+	"sync"
 	"helpoptimal"
 )
 type benchmark struct {
@@ -75,9 +77,58 @@ func (bm *benchmark) sanityTest() {
 	fmt.Println("Entering Test Sanity")
 	var keyAdded int
 	var keyRemoved int
+	var wg sync.WaitGroup
+	stopFlag := make(chan bool)
+	startFlag := make(chan bool)
 	for i := 0; i < *bm.numOfThreads; i++ {
-		go sanityRun(bm, i)
+		wg.Add(1)
+		go func(tid int) {
+			chooseOperation := random(0, 2)
+			key := random(0, *bm.keySpaceSize)
+			numberOfAdd := make([]int, *bm.keySpaceSize)
+			numberOfRemove := make([]int, *bm.keySpaceSize)
+			for {
+				select {
+				case <- startFlag:
+					break
+				default:
+					continue
+				}
+				break
+			}
+			for {
+				select {
+				case <- stopFlag:
+					 break
+				default:
+
+					if chooseOperation == 1 {
+						if bm.hoLFList.Add(helpoptimal.NewKeyValue(float64(key))) {
+							numberOfAdd[key]++
+						} else if bm.hoLFList.Remove(helpoptimal.NewKeyValue(float64(key))) {
+							numberOfRemove[key]++
+						}
+					} else {
+						if bm.hoLFList.Remove(helpoptimal.NewKeyValue(float64(key))) {
+							numberOfRemove[key]++
+						} else if bm.hoLFList.Add(helpoptimal.NewKeyValue(float64(key))) {
+							numberOfAdd[key]++
+						}
+					}
+					continue
+				}
+				break
+			}
+			for i := 0; i < *bm.keySpaceSize; i++ {
+				bm.sanityAdds[tid][i] += numberOfAdd[i]
+				bm.sanityRemoves[tid][i] += numberOfRemove[i]
+			}
+		}(i)
 	}
+	startFlag <- true
+	time.Sleep(300 * time.Millisecond)
+	stopFlag <- true
+	wg.Wait()
 	failedSanity := false
 	for k := 0; k < *bm.keySpaceSize; k++ {
 		keyAdded = bm.presentKeys[k]
