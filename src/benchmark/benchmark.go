@@ -94,15 +94,15 @@ func (bm *benchmark) sanityTest() {
 			key := random(0, *bm.keySpaceSize)
 			numberOfAdd := make([]int, *bm.keySpaceSize)
 			numberOfRemove := make([]int, *bm.keySpaceSize)
-			for {
-				select {
-				case <- startFlag:
-					break
-				default:
-					continue
-				}
-				break
-			}
+			// for {
+			// 	select {
+			// 	case <- startFlag:
+			// 		break
+			// 	default:
+			// 		continue
+			// 	}
+			// 	break
+			// }
 			for {
 				select {
 				case <- stopFlag:
@@ -133,7 +133,7 @@ func (bm *benchmark) sanityTest() {
 		}(i)
 	}
 	startFlag <- true
-	time.Sleep(*bm.warmUpTime * 1000)
+	time.Sleep(time.Second * 1000)
 	stopFlag <- true
 	wg.Wait()
 	failedSanity := false
@@ -176,7 +176,7 @@ func (bm *benchmark) initializeSet() {
 		added = bm.hoLFList.Add(helpoptimal.NewKeyValue(float64(key)))
 		if added == true {
 			i++
-			fmt.Printf("Added: %v\n", i);
+			//fmt.Printf("Added: %v\n", i);
 		}
 		if added == true && *bm.testSanity {
 			fmt.Println(key)
