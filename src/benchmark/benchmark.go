@@ -37,15 +37,22 @@ func newBenchmark() *benchmark {
 	return new(benchmark)
 }
 func (bm *benchmark)initFlags() {
-	bm.algo = flag.String("a", "HelpOptimalLFList", "Available Algorithms  (default=HelpOptimalLFList)")
+	bm.algo = flag.String("a", "HelpOptimalLFList",
+		"Available Algorithms  (default=HelpOptimalLFList)")
 	bm.testSanity = flag.Bool("t", true, "Sanity check (default=false)")
-	bm.duration = flag.Int("d", 2, "Test duration in seconds (0=infinite, default=2s)")
+	bm.duration = flag.Int("d", 2,
+		"Test duration in seconds (0=infinite, default=2s)")
 	bm.numOfThreads = flag.Int("n", 2, "Number of threads (default=2)")
-	bm.searchFraction = flag.Int("r", 0, "Fraction of search operations (default=0%)")
-	bm.insertUpdateFraction = flag.Int("i", 50, "Fraction of insert/add operations (default=50%)")
-	bm.deleteFraction = flag.Int("x", 50, "Fraction of delete operations (default=50%)")
-	bm.warmUpTime = flag.Int("w", 2, "Go Runtime warm up time in seconds(default=2s)")
-	bm.keySpaceSize = flag.Int("k", 100, "Number of possible keys (default=100)")
+	bm.searchFraction = flag.Int("r", 0,
+		"Fraction of search operations (default=0%)")
+	bm.insertUpdateFraction = flag.Int("i", 50,
+		"Fraction of insert/add operations (default=50%)")
+	bm.deleteFraction = flag.Int("x", 50,
+		"Fraction of delete operations (default=50%)")
+	bm.warmUpTime = flag.Int("w", 2,
+		"Go Runtime warm up time in seconds(default=2s)")
+	bm.keySpaceSize = flag.Int("k", 100,
+		"Number of possible keys (default=100)")
 
 	flag.Parse()
 	//fmt.Println(*bm.insertUpdateFraction + *bm.deleteFraction + *bm.searchFraction)
@@ -55,7 +62,7 @@ func (bm *benchmark)initFlags() {
 	}
 	bm.results = make([]int, *(bm.numOfThreads))
 	if *bm.testSanity {
-		bm.presentKeys = make([]int, *(bm.numOfThreads))
+		bm.presentKeys = make([]int, *(bm.keySpaceSize))
 		bm.sanityAdds = make([][]int, *(bm.numOfThreads))
 		for i := range bm.sanityAdds {
 			bm.sanityAdds[i] = make([]int, *(bm.keySpaceSize))
@@ -163,6 +170,7 @@ func (bm *benchmark) defineSet() {
 func (bm *benchmark) initializeSet() {
 	var key int
 	var added bool
+	fmt.Println("Intialize Set")
 	for i := 0; i < *bm.keySpaceSize; {
 		key = random(0, *bm.keySpaceSize);
 		added = bm.hoLFList.Add(helpoptimal.NewKeyValue(float64(key)))
@@ -170,7 +178,9 @@ func (bm *benchmark) initializeSet() {
 			i++
 		}
 		if added == true && *bm.testSanity {
-			bm.presentKeys[key]++
+			fmt.Println(key)
+			bm.presentKeys[key] = bm.presentKeys[key] + 1
 		}
+		//fmt.Printf("Added %v\n", i);
 	}
 }

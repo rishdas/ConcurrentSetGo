@@ -1,6 +1,7 @@
 package helpoptimal
 
 import (
+	"fmt"
 	"unsafe"
 	"sync/atomic"
 )
@@ -15,6 +16,7 @@ func newNodeNext(key *key, next *node) *node {
 	newNode := new(node)
 	newNode.key = key
 	newNode.next = next
+	newNode.back = nil
 	
 	return newNode
 }
@@ -33,7 +35,11 @@ func newNodeKey(key *key) *node {
 }
 
 func (t *node) casNext(o *node, n *node) bool {
-	oldNext := o.next
-	newNext := n.next
-	return t.next == o && atomic.CompareAndSwapPointer((*unsafe.Pointer)(unsafe.Pointer(&t.next)), unsafe.Pointer(oldNext), unsafe.Pointer(newNext))
+	fmt.Printf("t.next: %p\n", t.next)
+	fmt.Printf("o: %p\n", o)
+	fmt.Printf("n: %p\n", n)
+	return t.next == o &&
+		atomic.CompareAndSwapPointer(
+		(*unsafe.Pointer)(unsafe.Pointer(&t.next)),
+		unsafe.Pointer(o), unsafe.Pointer(n))
 }

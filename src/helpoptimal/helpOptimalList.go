@@ -1,5 +1,8 @@
 package helpoptimal
 
+import (
+	"fmt"
+)
 
 type HelpOptimalLFList struct {
 	head *node
@@ -61,6 +64,17 @@ func (hoLFList *HelpOptimalLFList) Add(k *key) bool{
 		} else if cur.key.equals(k) == true {
 			return false
 		}
+		// fmt.Printf("pre: %p pre.value: %2.2f\n", pre, pre.key.value)
+		// fmt.Printf("suc: %p suc.value: %2.2f\n", suc, suc.key.value)
+		// fmt.Printf("cur: %p cur.value: %2.2f\n", cur, cur.key.value)
+		// fmt.Printf("nex: %p nex.value: %2.2f\n", nex, nex.key.value)
+		fmt.Printf("Key: %f\n", k.value)
+		// fmt.Printf("pre: %p\n", pre)
+		// fmt.Printf("suc: %p\n", suc)
+		// fmt.Printf("cur: %p\n", cur)
+		// fmt.Printf("nex: %p\n", nex)
+
+
 		if pre.casNext(suc, newNodeNext(k, cur)) == true {
 			return true
 		}
