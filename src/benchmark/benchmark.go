@@ -133,7 +133,7 @@ func (bm *benchmark) sanityTest() {
 		}(i)
 	}
 	startFlag <- true
-	time.Sleep(300 * time.Millisecond)
+	time.Sleep(*bm.warmUpTime * 1000)
 	stopFlag <- true
 	wg.Wait()
 	failedSanity := false
@@ -171,11 +171,12 @@ func (bm *benchmark) initializeSet() {
 	var key int
 	var added bool
 	fmt.Println("Intialize Set")
-	for i := 0; i < *bm.keySpaceSize; {
+	for i := 0; i < *bm.keySpaceSize/2; {
 		key = random(0, *bm.keySpaceSize);
 		added = bm.hoLFList.Add(helpoptimal.NewKeyValue(float64(key)))
 		if added == true {
 			i++
+			fmt.Printf("Added: %v\n", i);
 		}
 		if added == true && *bm.testSanity {
 			fmt.Println(key)
