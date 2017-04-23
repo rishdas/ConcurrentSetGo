@@ -1,7 +1,7 @@
 package helpoptimal
 
 import (
-	"fmt"
+	// "fmt"
 )
 
 type HelpOptimalLFList struct {
@@ -68,7 +68,7 @@ func (hoLFList *HelpOptimalLFList) Add(k *key) bool{
 		// fmt.Printf("suc: %p suc.value: %2.2f\n", suc, suc.key.value)
 		// fmt.Printf("cur: %p cur.value: %2.2f\n", cur, cur.key.value)
 		// fmt.Printf("nex: %p nex.value: %2.2f\n", nex, nex.key.value)
-		fmt.Printf("Key: %f\n", k.value)
+		//fmt.Printf("Key: %f\n", k.value)
 		// fmt.Printf("pre: %p\n", pre)
 		// fmt.Printf("suc: %p\n", suc)
 		// fmt.Printf("cur: %p\n", cur)

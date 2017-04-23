@@ -85,27 +85,30 @@ func (bm *benchmark) sanityTest() {
 	var keyAdded int
 	var keyRemoved int
 	var wg sync.WaitGroup
+	//stopFor := false
 	stopFlag := make(chan bool)
 	startFlag := make(chan bool)
 	for i := 0; i < *bm.numOfThreads; i++ {
 		wg.Add(1)
 		go func(tid int) {
+			fmt.Printf("Entering thread %v\n", tid)
 			chooseOperation := random(0, 2)
 			key := random(0, *bm.keySpaceSize)
 			numberOfAdd := make([]int, *bm.keySpaceSize)
 			numberOfRemove := make([]int, *bm.keySpaceSize)
-			// for {
-			// 	select {
-			// 	case <- startFlag:
-			// 		break
-			// 	default:
-			// 		continue
-			// 	}
-			// 	break
-			// }
+			for {
+				select {
+				case <- startFlag:
+					break
+				default:
+					continue
+				}
+				break
+			}
 			for {
 				select {
 				case <- stopFlag:
+					//stopFor = true
 					 break
 				default:
 
@@ -130,11 +133,17 @@ func (bm *benchmark) sanityTest() {
 				bm.sanityAdds[tid][i] += numberOfAdd[i]
 				bm.sanityRemoves[tid][i] += numberOfRemove[i]
 			}
+			fmt.Printf("Exiting thread %v\n", tid)
+			wg.Done()			
 		}(i)
 	}
-	startFlag <- true
-	time.Sleep(time.Second * 1000)
-	stopFlag <- true
+	for i := 0; i < *bm.numOfThreads; i++ {
+		startFlag <- true
+	}
+	time.Sleep(time.Second * 100)
+	for i := 0; i < *bm.numOfThreads; i++ {
+		stopFlag <- true
+	}
 	wg.Wait()
 	failedSanity := false
 	for k := 0; k < *bm.keySpaceSize; k++ {
@@ -179,7 +188,7 @@ func (bm *benchmark) initializeSet() {
 			//fmt.Printf("Added: %v\n", i);
 		}
 		if added == true && *bm.testSanity {
-			fmt.Println(key)
+			//fmt.Println(key)
 			bm.presentKeys[key] = bm.presentKeys[key] + 1
 		}
 		//fmt.Printf("Added %v\n", i);
