@@ -46,6 +46,7 @@ func (hoLFList *HelpOptimalLFList) Add(k *key) bool{
 	cur := hoLFList.headNext
 	nex := cur.next
 	for true {
+		//Search
 		for cur.key.compareTo(k) == true {
 			if nex.back == nil {
 				pre = cur
@@ -56,7 +57,9 @@ func (hoLFList *HelpOptimalLFList) Add(k *key) bool{
 			}
 			nex = cur.next
 		}
+		//isSplice Node
 		if (nex.back != nil) {
+			//Traverses Splice nodes and Helps removal
 			for nex.back != nil {
 				cur = nex.next
 				nex = cur.next
@@ -64,20 +67,12 @@ func (hoLFList *HelpOptimalLFList) Add(k *key) bool{
 		} else if cur.key.equals(k) == true {
 			return false
 		}
-		// fmt.Printf("pre: %p pre.value: %2.2f\n", pre, pre.key.value)
-		// fmt.Printf("suc: %p suc.value: %2.2f\n", suc, suc.key.value)
-		// fmt.Printf("cur: %p cur.value: %2.2f\n", cur, cur.key.value)
-		// fmt.Printf("nex: %p nex.value: %2.2f\n", nex, nex.key.value)
-		//fmt.Printf("Key: %f\n", k.value)
-		// fmt.Printf("pre: %p\n", pre)
-		// fmt.Printf("suc: %p\n", suc)
-		// fmt.Printf("cur: %p\n", cur)
-		// fmt.Printf("nex: %p\n", nex)
-
+		//CAS p(k).nxt from s(k) to k  
 
 		if pre.casNext(suc, newNodeNext(k, cur)) == true {
 			return true
 		}
+		//Local Back track
 		suc = pre.next
 		for suc.back != nil {
 			pre = suc.back
@@ -110,13 +105,14 @@ func (hoLFList *HelpOptimalLFList) Remove(k *key) bool {
 			nex = cur.next
 		}
 		if mode == true {
+			//key not found or already logically removed
 			if k.equals(cur.key) == false || nex.back != nil {
 				return false
 			}
 			marker = newNodeBack(pre, NewKeyValue(nk.minValue0))
 			for true {
 				marker.next = nex
-				if cur.casNext(nex, marker) == true {
+				if cur.casNext(nex, marker) == true { //Logically Removing
 					if pre.casNext(suc, nex) {
 						return true
 					}
@@ -149,7 +145,7 @@ func (hoLFList *HelpOptimalLFList) TraversalTest() bool {
 	for cur != hoLFList.tail {
 		cur = nex
 		nex = hoLFList.getRef(cur.next)
-		if cur.key.compareTo(nex.key) {
+		if cur.key.compareTo(nex.key) == false {
 			return false
 		}
 	}

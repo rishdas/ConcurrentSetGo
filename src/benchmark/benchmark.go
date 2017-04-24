@@ -42,7 +42,7 @@ func (bm *benchmark)initFlags() {
 	bm.testSanity = flag.Bool("t", true, "Sanity check (default=false)")
 	bm.duration = flag.Int("d", 2,
 		"Test duration in seconds (0=infinite, default=2s)")
-	bm.numOfThreads = flag.Int("n", 2, "Number of threads (default=2)")
+	bm.numOfThreads = flag.Int("n", 4, "Number of threads (default=2)")
 	bm.searchFraction = flag.Int("r", 0,
 		"Fraction of search operations (default=0%)")
 	bm.insertUpdateFraction = flag.Int("i", 50,
