@@ -7,6 +7,7 @@ import (
 	"time"
 	"sync"
 	"helpoptimal"
+	"runtime"
 )
 type benchmark struct {
 	algo *string
@@ -24,14 +25,6 @@ type benchmark struct {
 	sanityRemoves [][]int
 	hoLFList *helpoptimal.HelpOptimalLFList
 }
-func main() {
-	bm := newBenchmark()
-	bm.initFlags()
-	bm.initializeSet()
-	if *bm.testSanity == true {
-		bm.sanityTest()
-	}
-}
 
 func newBenchmark() *benchmark {
 	return new(benchmark)
@@ -39,7 +32,7 @@ func newBenchmark() *benchmark {
 func (bm *benchmark)initFlags() {
 	bm.algo = flag.String("a", "HelpOptimalLFList",
 		"Available Algorithms  (default=HelpOptimalLFList)")
-	bm.testSanity = flag.Bool("t", true, "Sanity check (default=false)")
+	bm.testSanity = flag.Bool("t", false, "Sanity check (default=false)")
 	bm.duration = flag.Int("d", 2,
 		"Test duration in seconds (0=infinite, default=2s)")
 	bm.numOfThreads = flag.Int("n", 4, "Number of threads (default=2)")
@@ -55,7 +48,6 @@ func (bm *benchmark)initFlags() {
 		"Number of possible keys (default=100)")
 
 	flag.Parse()
-	//fmt.Println(*bm.insertUpdateFraction + *bm.deleteFraction + *bm.searchFraction)
 	if (*bm.insertUpdateFraction + *bm.deleteFraction + *bm.searchFraction) > 100 {
 		fmt.Println("(addPercent+removePercent+searchPercent) > 100")
 		os.Exit(1)
@@ -72,11 +64,6 @@ func (bm *benchmark)initFlags() {
 			bm.sanityRemoves[i] = make([]int, *(bm.keySpaceSize))
 		}
 	}
-	// Print arguments
-	// fmt.Println("benchmark:", *(bm.algo))
-	// fmt.Println("benchmark:", *(bm.testSanity))
-	// fmt.Println("benchmark:", *(bm.duration))
-	// fmt.Println("benchmark:", *(bm.numOfThreads))
 	bm.defineSet()
 	
 }
@@ -85,7 +72,6 @@ func (bm *benchmark) sanityTest() {
 	var keyAdded int
 	var keyRemoved int
 	var wg sync.WaitGroup
-	//stopFor := false
 	stopFlag := make(chan bool)
 	startFlag := make(chan bool)
 	for i := 0; i < *bm.numOfThreads; i++ {
@@ -108,7 +94,6 @@ func (bm *benchmark) sanityTest() {
 			for {
 				select {
 				case <- stopFlag:
-					//stopFor = true
 					 break
 				default:
 
@@ -185,12 +170,84 @@ func (bm *benchmark) initializeSet() {
 		added = bm.hoLFList.Add(helpoptimal.NewKeyValue(float64(key)))
 		if added == true {
 			i++
-			//fmt.Printf("Added: %v\n", i);
 		}
 		if added == true && *bm.testSanity {
-			//fmt.Println(key)
 			bm.presentKeys[key] = bm.presentKeys[key] + 1
 		}
-		//fmt.Printf("Added %v\n", i);
+	}
+}
+func (bm *benchmark) warmupVM() {
+	//First Round
+	var wg sync.WaitGroup
+	stopFlag := make(chan bool)
+	startFlag := make(chan bool)
+	for i := 0; i < *bm.numOfThreads; i++ {
+		wg.Add(1)
+		go func(tid int) {
+			fmt.Printf("Entering thread %v\n", tid)
+			chooseOperation := random(0, 100)
+			key := random(0, *bm.keySpaceSize)
+			numberOfOps := 0
+			for {
+				select {
+				case <- startFlag:
+					break
+				default:
+					continue
+				}
+				break
+			}
+			for {
+				select {
+				case <- stopFlag:
+					break
+				default:
+
+					if chooseOperation < *bm.insertUpdateFraction {
+						bm.hoLFList.Add(helpoptimal.NewKeyValue(float64(key)))
+					} else if (chooseOperation < *bm.deleteFraction){
+						bm.hoLFList.Remove(helpoptimal.NewKeyValue(float64(key)))
+					} else {
+						bm.hoLFList.Contains(helpoptimal.NewKeyValue(float64(key)))
+					}
+					numberOfOps++
+					continue
+				}
+				break
+			}
+			bm.results[tid] = numberOfOps
+			fmt.Printf("Exiting thread %v\n", tid)
+			wg.Done()			
+		}(i)
+	}
+	for i := 0; i < *bm.numOfThreads; i++ {
+		startFlag <- true
+	}
+	time.Sleep(time.Second * 100)
+	for i := 0; i < *bm.numOfThreads; i++ {
+		stopFlag <- true
+	}
+	wg.Wait()
+	
+}
+
+func (bm *benchmark) doBenchmark() {
+}
+
+func main() {
+	bm := newBenchmark()
+	bm.initFlags()
+	bm.initializeSet()
+	if *bm.testSanity == true {
+		bm.sanityTest()
+	} else {
+		// memory cleanup 
+		runtime.GC()
+		bm.warmupVM()
+		runtime.GC()
+		bm.defineSet()
+		runtime.GC()
+		bm.initializeSet()
+		bm.doBenchmark()
 	}
 }
