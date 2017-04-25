@@ -223,15 +223,97 @@ func (bm *benchmark) warmupVM() {
 	for i := 0; i < *bm.numOfThreads; i++ {
 		startFlag <- true
 	}
-	time.Sleep(time.Second * 100)
+	time.Sleep(time.Second * 1000)
+	for i := 0; i < *bm.numOfThreads; i++ {
+		stopFlag <- true
+	}
+	wg.Wait()	
+}
+
+func (bm *benchmark) doBenchmark() {
+	var wg sync.WaitGroup
+	var totalOps int
+	var maxOps int
+	var minOps int
+	var throughput int
+	var fairness int
+	stopFlag := make(chan bool)
+	startFlag := make(chan bool)
+	for i := 0; i < *bm.numOfThreads; i++ {
+		wg.Add(1)
+		go func(tid int) {
+			fmt.Printf("Entering thread %v\n", tid)
+			chooseOperation := random(0, 100)
+			key := random(0, *bm.keySpaceSize)
+			numberOfOps := 0
+			for {
+				select {
+				case <- startFlag:
+					break
+				default:
+					continue
+				}
+				break
+			}
+			for {
+				select {
+				case <- stopFlag:
+					break
+				default:
+
+					if chooseOperation < *bm.insertUpdateFraction {
+						bm.hoLFList.Add(helpoptimal.NewKeyValue(float64(key)))
+					} else if (chooseOperation < *bm.deleteFraction){
+						bm.hoLFList.Remove(helpoptimal.NewKeyValue(float64(key)))
+					} else {
+						bm.hoLFList.Contains(helpoptimal.NewKeyValue(float64(key)))
+					}
+					numberOfOps++
+					continue
+				}
+				break
+			}
+			bm.results[tid] = numberOfOps
+			fmt.Printf("Exiting thread %v\n", tid)
+			wg.Done()			
+		}(i)
+	}
+	beginTime := time.Now()
+	for i := 0; i < *bm.numOfThreads; i++ {
+		startFlag <- true
+	}
+	time.Sleep(time.Second * 1000)
 	for i := 0; i < *bm.numOfThreads; i++ {
 		stopFlag <- true
 	}
 	wg.Wait()
-	
-}
-
-func (bm *benchmark) doBenchmark() {
+	timeElapsed := time.Since(beginTime)
+	timeElapsedSeconds := timeElapsed.Seconds()
+	maxOps = 0
+	for i := 0; i < *bm.numOfThreads; i++ {
+		totalOps += bm.results[i]
+		if maxOps < bm.results[i] {
+			maxOps = bm.results[i]
+		}
+			
+	}
+	minOps = maxOps
+	for i := 0; i < *bm.numOfThreads; i++ {
+		if minOps > bm.results[i] {
+			minOps = bm.results[i]
+		}
+	}
+	fmt.Printf("minOps: %v maxOps: %v\n", minOps, maxOps)
+	throughput = totalOps / int(timeElapsedSeconds)
+	allMinOps := *bm.numOfThreads * minOps / totalOps
+	allMaxOps := totalOps/(*bm.numOfThreads) * maxOps
+	fmt.Printf("allMinOps: %v allMaxOps: %v\n", allMaxOps, allMinOps)
+	if allMinOps < allMaxOps {
+		fairness = allMinOps
+	} else {
+		fairness = allMaxOps
+	}
+	fmt.Printf("Throughput: %v Fairness: %v\n", throughput, fairness)
 }
 
 func main() {
