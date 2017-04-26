@@ -8,6 +8,7 @@ import (
 	"sync"
 	"helpoptimal"
 	"runtime"
+	"harrisll"
 )
 type benchmark struct {
 	algo *string
@@ -24,6 +25,7 @@ type benchmark struct {
 	sanityAdds [][]int
 	sanityRemoves [][]int
 	hoLFList *helpoptimal.HelpOptimalLFList
+	harrisLL *harrisll.HarrisLL
 }
 
 func newBenchmark() *benchmark {
@@ -157,8 +159,18 @@ func (bm *benchmark) sanityTest() {
 	fmt.Println(bm.hoLFList.TraversalTest());
 }
 func (bm *benchmark) defineSet() {
-	fmt.Println("Define Set")
-	bm.hoLFList = helpoptimal.NewHelpOptimalLFList()
+	switch *bm.algo {
+	case "HelpOptimalLFList":
+		bm.hoLFList = helpoptimal.NewHelpOptimalLFList()
+		break
+	case "HarrisLinkedList":
+		bm.harrisLL = harrisll.NewHarrisLL()
+		break
+	default:
+		fmt.Println("Default ALgo HelpOptimalLFList")
+		bm.hoLFList = helpoptimal.NewHelpOptimalLFList()
+	}
+		
 }
 
 func (bm *benchmark) initializeSet() {
@@ -303,7 +315,7 @@ func (bm *benchmark) doBenchmark() {
 			minOps = bm.results[i]
 		}
 	}
-	fmt.Printf("minOps: %v maxOps: %v\n", minOps, maxOps)
+	fmt.Printf("totalOps: %v 4*minOps: %v 4*maxOps: %v\n", totalOps, 4*minOps, 4*maxOps)
 	throughput = totalOps / int(timeElapsedSeconds)
 	allMinOps := *bm.numOfThreads * minOps / totalOps
 	allMaxOps := totalOps/(*bm.numOfThreads) * maxOps
