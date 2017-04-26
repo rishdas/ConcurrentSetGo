@@ -9,7 +9,15 @@ import (
 	"helpoptimal"
 	"runtime"
 	"harrisll"
+	"utils"
+	"math/rand"
 )
+type list interface {
+	Contains(*utils.Key) bool
+	Add(*utils.Key) bool
+	Remove(*utils.Key) bool
+	TraversalTest() bool
+}
 type benchmark struct {
 	algo *string
 	testSanity *bool
@@ -24,8 +32,9 @@ type benchmark struct {
 	presentKeys []int
 	sanityAdds [][]int
 	sanityRemoves [][]int
-	hoLFList *helpoptimal.HelpOptimalLFList
-	harrisLL *harrisll.HarrisLL
+	hoLFList list
+	//hoLFList *helpoptimal.HelpOptimalLFList
+	//harrisLL *harrisll.HarrisLL
 }
 
 func newBenchmark() *benchmark {
@@ -100,15 +109,15 @@ func (bm *benchmark) sanityTest() {
 				default:
 
 					if chooseOperation == 1 {
-						if bm.hoLFList.Add(helpoptimal.NewKeyValue(float64(key))) {
+						if bm.hoLFList.Add(utils.NewKeyValue(float64(key))) {
 							numberOfAdd[key]++
-						} else if bm.hoLFList.Remove(helpoptimal.NewKeyValue(float64(key))) {
+						} else if bm.hoLFList.Remove(utils.NewKeyValue(float64(key))) {
 							numberOfRemove[key]++
 						}
 					} else {
-						if bm.hoLFList.Remove(helpoptimal.NewKeyValue(float64(key))) {
+						if bm.hoLFList.Remove(utils.NewKeyValue(float64(key))) {
 							numberOfRemove[key]++
-						} else if bm.hoLFList.Add(helpoptimal.NewKeyValue(float64(key))) {
+						} else if bm.hoLFList.Add(utils.NewKeyValue(float64(key))) {
 							numberOfAdd[key]++
 						}
 					}
@@ -141,7 +150,7 @@ func (bm *benchmark) sanityTest() {
 			keyRemoved += bm.sanityRemoves[tid][k]
 		}
 
-		if bm.hoLFList.Contains(helpoptimal.NewKeyValue(float64(k))) == true {
+		if bm.hoLFList.Contains(utils.NewKeyValue(float64(k))) == true {
 			if keyAdded != keyRemoved + 1 {
 				fmt.Println("First Sanity passed")
 				failedSanity = true
@@ -164,7 +173,7 @@ func (bm *benchmark) defineSet() {
 		bm.hoLFList = helpoptimal.NewHelpOptimalLFList()
 		break
 	case "HarrisLinkedList":
-		bm.harrisLL = harrisll.NewHarrisLL()
+		bm.hoLFList = harrisll.NewHarrisLL()
 		break
 	default:
 		fmt.Println("Default ALgo HelpOptimalLFList")
@@ -179,7 +188,7 @@ func (bm *benchmark) initializeSet() {
 	fmt.Println("Intialize Set")
 	for i := 0; i < *bm.keySpaceSize/2; {
 		key = random(0, *bm.keySpaceSize);
-		added = bm.hoLFList.Add(helpoptimal.NewKeyValue(float64(key)))
+		added = bm.hoLFList.Add(utils.NewKeyValue(float64(key)))
 		if added == true {
 			i++
 		}
@@ -216,11 +225,11 @@ func (bm *benchmark) warmupVM() {
 				default:
 
 					if chooseOperation < *bm.insertUpdateFraction {
-						bm.hoLFList.Add(helpoptimal.NewKeyValue(float64(key)))
+						bm.hoLFList.Add(utils.NewKeyValue(float64(key)))
 					} else if (chooseOperation < *bm.deleteFraction){
-						bm.hoLFList.Remove(helpoptimal.NewKeyValue(float64(key)))
+						bm.hoLFList.Remove(utils.NewKeyValue(float64(key)))
 					} else {
-						bm.hoLFList.Contains(helpoptimal.NewKeyValue(float64(key)))
+						bm.hoLFList.Contains(utils.NewKeyValue(float64(key)))
 					}
 					numberOfOps++
 					continue
@@ -274,11 +283,11 @@ func (bm *benchmark) doBenchmark() {
 				default:
 
 					if chooseOperation < *bm.insertUpdateFraction {
-						bm.hoLFList.Add(helpoptimal.NewKeyValue(float64(key)))
+						bm.hoLFList.Add(utils.NewKeyValue(float64(key)))
 					} else if (chooseOperation < *bm.deleteFraction){
-						bm.hoLFList.Remove(helpoptimal.NewKeyValue(float64(key)))
+						bm.hoLFList.Remove(utils.NewKeyValue(float64(key)))
 					} else {
-						bm.hoLFList.Contains(helpoptimal.NewKeyValue(float64(key)))
+						bm.hoLFList.Contains(utils.NewKeyValue(float64(key)))
 					}
 					numberOfOps++
 					continue
@@ -326,6 +335,11 @@ func (bm *benchmark) doBenchmark() {
 		fairness = allMaxOps
 	}
 	fmt.Printf("Throughput: %v Fairness: %v\n", throughput, fairness)
+}
+
+func random(min, max int) int {
+    rand.Seed(time.Now().Unix())
+    return rand.Intn(max - min) + min
 }
 
 func main() {

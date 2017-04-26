@@ -4,15 +4,16 @@ import (
 	// "fmt"
 	"unsafe"
 	"sync/atomic"
+	"utils"
 )
 
 type node struct {
-	key *key
+	key *utils.Key
 	next *node
 	isMarker bool
 }
 
-func newNodeKey(key *key) *node {
+func newNodeKey(key *utils.Key) *node {
 	newNode := new(node)
 	newNode.key = key
 	newNode.isMarker = false
@@ -21,8 +22,8 @@ func newNodeKey(key *key) *node {
 }
 
 func newMakerNode(n *node) *node {
-	k := newKey()
-	newMarker := newNodeKey(NewKeyValue(k.minValue0))
+	k := utils.NewKey()
+	newMarker := newNodeKey(utils.NewKeyValue(k.MinValue0))
 	newMarker.next = n
 	newMarker.isMarker = true
 

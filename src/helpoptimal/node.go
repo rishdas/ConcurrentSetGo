@@ -4,15 +4,16 @@ import (
 	// "fmt"
 	"unsafe"
 	"sync/atomic"
+	"utils"
 )
 
 type node struct {
-	key *key
+	key *utils.Key
 	next *node
 	back *node
 }
 
-func newNodeNext(key *key, next *node) *node {
+func newNodeNext(key *utils.Key, next *node) *node {
 	newNode := new(node)
 	newNode.key = key
 	newNode.next = next
@@ -20,14 +21,14 @@ func newNodeNext(key *key, next *node) *node {
 	
 	return newNode
 }
-func newNodeBack(pre *node, key *key) *node {
+func newNodeBack(pre *node, key *utils.Key) *node {
 	newNode := new(node)
 	newNode.key = key
 	newNode.back = pre
 	
 	return newNode
 }
-func newNodeKey(key *key) *node {
+func newNodeKey(key *utils.Key) *node {
 	newNode := new(node)
 	newNode.key = key
 	
@@ -35,9 +36,6 @@ func newNodeKey(key *key) *node {
 }
 
 func (t *node) casNext(o *node, n *node) bool {
-	// fmt.Printf("t.next: %p\n", t.next)
-	// fmt.Printf("o: %p\n", o)
-	// fmt.Printf("n: %p\n", n)
 	return t.next == o &&
 		atomic.CompareAndSwapPointer(
 		(*unsafe.Pointer)(unsafe.Pointer(&t.next)),

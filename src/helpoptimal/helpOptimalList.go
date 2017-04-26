@@ -1,6 +1,7 @@
 package helpoptimal
 
 import (
+	"utils"
 	// "fmt"
 )
 
@@ -13,11 +14,11 @@ type HelpOptimalLFList struct {
 
 func NewHelpOptimalLFList() *HelpOptimalLFList {
 	hoLFList := new(HelpOptimalLFList)
-	key := newKey()
-	hoLFList.tailNext = newNodeKey(NewKeyValue(key.maxValue0));
-        hoLFList.tail = newNodeNext(NewKeyValue(key.maxValue1), hoLFList.tailNext);
-        hoLFList.headNext = newNodeNext(NewKeyValue(key.minValue1), hoLFList.tail);
-        hoLFList.head = newNodeNext(NewKeyValue(key.minValue0), hoLFList.headNext);
+	key := utils.NewKey()
+	hoLFList.tailNext = newNodeKey(utils.NewKeyValue(key.MaxValue0));
+        hoLFList.tail = newNodeNext(utils.NewKeyValue(key.MaxValue1), hoLFList.tailNext);
+        hoLFList.headNext = newNodeNext(utils.NewKeyValue(key.MinValue1), hoLFList.tail);
+        hoLFList.head = newNodeNext(utils.NewKeyValue(key.MinValue0), hoLFList.headNext);
 	return hoLFList
 }
 
@@ -32,22 +33,22 @@ func (hoLFList *HelpOptimalLFList) getNext(n *node) *node{
 	return hoLFList.getRef(n.next)
 }
 
-func (hoLFList *HelpOptimalLFList) Contains(k *key) bool{
+func (hoLFList *HelpOptimalLFList) Contains(k *utils.Key) bool{
 	cur := hoLFList.getNext(hoLFList.headNext);
-	for cur.key.compareTo(k) == true {
+	for cur.key.CompareTo(k) == true {
 		cur = cur.next
 	}
-	return k.equals(cur.key) && cur.next.back == nil;
+	return k.Equals(cur.key) && cur.next.back == nil;
 }
 
-func (hoLFList *HelpOptimalLFList) Add(k *key) bool{
+func (hoLFList *HelpOptimalLFList) Add(k *utils.Key) bool{
 	pre := hoLFList.head
 	suc := hoLFList.headNext
 	cur := hoLFList.headNext
 	nex := cur.next
 	for true {
 		//Search
-		for cur.key.compareTo(k) == true {
+		for cur.key.CompareTo(k) == true {
 			if nex.back == nil {
 				pre = cur
 				suc = nex
@@ -64,7 +65,7 @@ func (hoLFList *HelpOptimalLFList) Add(k *key) bool{
 				cur = nex.next
 				nex = cur.next
 			}
-		} else if cur.key.equals(k) == true {
+		} else if cur.key.Equals(k) == true {
 			return false
 		}
 		//CAS p(k).nxt from s(k) to k  
@@ -84,17 +85,17 @@ func (hoLFList *HelpOptimalLFList) Add(k *key) bool{
 	//Dead Code
 	return false
 }
-func (hoLFList *HelpOptimalLFList) Remove(k *key) bool {
+func (hoLFList *HelpOptimalLFList) Remove(k *utils.Key) bool {
 	pre := hoLFList.head
 	suc := hoLFList.headNext
 	cur := hoLFList.headNext
 	nex := cur.next
 	var marker *node
 	mode := true
-	nk := newKey()
+	nk := utils.NewKey()
 
 	for true {
-		for cur.key.compareTo(k) == true {
+		for cur.key.CompareTo(k) == true {
 			if nex.back == nil {
 				pre = cur
 				suc = nex
@@ -106,10 +107,10 @@ func (hoLFList *HelpOptimalLFList) Remove(k *key) bool {
 		}
 		if mode == true {
 			//key not found or already logically removed
-			if k.equals(cur.key) == false || nex.back != nil {
+			if k.Equals(cur.key) == false || nex.back != nil {
 				return false
 			}
-			marker = newNodeBack(pre, NewKeyValue(nk.minValue0))
+			marker = newNodeBack(pre, utils.NewKeyValue(nk.MinValue0))
 			for true {
 				marker.next = nex
 				if cur.casNext(nex, marker) == true { //Logically Removing
@@ -145,7 +146,7 @@ func (hoLFList *HelpOptimalLFList) TraversalTest() bool {
 	for cur != hoLFList.tail {
 		cur = nex
 		nex = hoLFList.getRef(cur.next)
-		if cur.key.compareTo(nex.key) == false {
+		if cur.key.CompareTo(nex.key) == false {
 			return false
 		}
 	}

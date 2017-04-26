@@ -2,6 +2,7 @@ package harrisll
 
 import (
 	// "fmt"
+	"utils"
 )
 
 type HarrisLL struct {
@@ -11,30 +12,30 @@ type HarrisLL struct {
 
 func NewHarrisLL() *HarrisLL {
 	harrisLL := new(HarrisLL)
-	key := newKey()
-	harrisLL.head = newNodeKey(NewKeyValue(key.minValue0))
-        harrisLL.tail = newNodeKey(NewKeyValue(key.maxValue0))
+	key := utils.NewKey()
+	harrisLL.head = newNodeKey(utils.NewKeyValue(key.MinValue0))
+        harrisLL.tail = newNodeKey(utils.NewKeyValue(key.MaxValue0))
 	harrisLL.head.next = harrisLL.tail
 	return harrisLL
 }
 
 func (harrisLL *HarrisLL) getRef(n *node) *node{
-	if n.isMarker == true {
+	if n != nil && n.isMarker == true {
 		return n
 	} else {
 		return n.next
 	}
 }
 
-func (harrisLL *HarrisLL) Contains(k *key) bool{
+func (harrisLL *HarrisLL) Contains(k *utils.Key) bool{
 	cur := harrisLL.head
-	for cur.key.compareTo(k) == true {
+	for cur.key.CompareTo(k) == true {
 		cur = cur.next
 	}
-	return k.equals(cur.key) && !(cur.next.isMarker == true);
+	return k.Equals(cur.key) && !(cur.next != nil && cur.next.isMarker == true);
 }
 
-func (harrisLL *HarrisLL) Add(k *key) bool{
+func (harrisLL *HarrisLL) Add(k *utils.Key) bool{
 	var pred *node
 	var curr *node
 	var succ *node
@@ -44,7 +45,7 @@ func (harrisLL *HarrisLL) Add(k *key) bool{
 		curr = pred.next
 		for true {
 			succ = curr.next
-			for succ.isMarker == true {
+			for succ != nil && succ.isMarker == true {
 				succ = succ.next
 				if ! pred.casNext(curr, succ) {
 					continue retry
@@ -52,10 +53,10 @@ func (harrisLL *HarrisLL) Add(k *key) bool{
 				curr = succ
 				succ = succ.next
 			}
-			if curr.key.compareTo(k) == true {
+			if curr.key.CompareTo(k) == true {
 				pred = curr
 				curr = succ
-			} else if curr.key.equals(k) {
+			} else if curr.key.Equals(k) {
 				return false
 			} else {
 				node := newNodeKey(k)
@@ -71,7 +72,7 @@ func (harrisLL *HarrisLL) Add(k *key) bool{
 	//Dead Code
 	return false
 }
-func (harrisLL *HarrisLL) Remove(k *key) bool {
+func (harrisLL *HarrisLL) Remove(k *utils.Key) bool {
 	var pred *node
 	var curr *node
 	var succ *node
@@ -82,7 +83,7 @@ func (harrisLL *HarrisLL) Remove(k *key) bool {
 		curr = pred.next
 		for true {
 			succ = curr.next
-			for succ.isMarker == true {
+			for succ != nil && succ.isMarker == true {
 				succ = succ.next
 				if !pred.casNext(curr, succ) {
 					continue retry
@@ -90,16 +91,16 @@ func (harrisLL *HarrisLL) Remove(k *key) bool {
 				curr = succ
 				succ = succ.next
 			}
-			if curr.key.compareTo(k) {
+			if curr.key.CompareTo(k) {
 				pred = curr
 				curr = succ
-			} else if curr.key.compareTo(k) {
+			} else if curr.key.CompareTo(k) {
 				if !curr.casNext(succ, newMakerNode(succ)) {
 					continue retry
 				}
 				pred.casNext(curr, succ)
 				return true
-			} else if k.compareTo(curr.key) {
+			} else if k.CompareTo(curr.key) {
 				return false
 			}
 		}
@@ -114,7 +115,7 @@ func (harrisLL *HarrisLL) TraversalTest() bool {
 	for nex != harrisLL.tail {
 		cur = nex
 		nex = harrisLL.getRef(cur.next)
-		if cur.key.compareTo(nex.key) == false {
+		if cur.key.CompareTo(nex.key) == false {
 			return false
 		}
 	}
