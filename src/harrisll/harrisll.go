@@ -47,7 +47,7 @@ func (harrisLL *HarrisLL) Add(k *utils.Key) bool{
 			succ = curr.next
 			for succ != nil && succ.isMarker == true {
 				succ = succ.next
-				if ! pred.casNext(curr, succ) {
+				if pred.casNext(curr, succ) == false {
 					continue retry
 				}
 				curr = succ
@@ -85,17 +85,17 @@ func (harrisLL *HarrisLL) Remove(k *utils.Key) bool {
 			succ = curr.next
 			for succ != nil && succ.isMarker == true {
 				succ = succ.next
-				if !pred.casNext(curr, succ) {
+				if pred.casNext(curr, succ) == false {
 					continue retry
 				}
 				curr = succ
 				succ = succ.next
 			}
-			if curr.key.CompareTo(k) {
+			if curr.key.CompareTo(k) == true {
 				pred = curr
 				curr = succ
-			} else if curr.key.CompareTo(k) {
-				if !curr.casNext(succ, newMakerNode(succ)) {
+			} else if curr.key.Equals(k) == true {
+				if curr.casNext(succ, newMakerNode(succ)) == false {
 					continue retry
 				}
 				pred.casNext(curr, succ)

@@ -17,6 +17,7 @@ func newNodeKey(key *utils.Key) *node {
 	newNode := new(node)
 	newNode.key = key
 	newNode.isMarker = false
+	newNode.next = nil
 	
 	return newNode
 }
