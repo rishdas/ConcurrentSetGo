@@ -313,7 +313,10 @@ func (bm *benchmark) doBenchmark() {
 	}
 	throughput = totalOps / int(timeElapsedSeconds)
 	
-	fmt.Printf("Algo: %v Throughput: %v\n", *bm.algo, throughput)
+	fmt.Printf("%v %v %v %v %v %v %v\n", *bm.keySpaceSize,
+		*bm.insertUpdateFraction,
+		*bm.deleteFraction, *bm.searchFraction, *bm.algo,
+		*bm.numOfThreads, throughput)
 }
 
 func random(min, max int) int {
