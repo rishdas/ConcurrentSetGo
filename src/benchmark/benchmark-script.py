@@ -5,7 +5,7 @@ sum_e = 0
 num_of_threads = 2
 data_sizes = ['128', '512', '1024', '4096']
 binary = './benchmark'
-algo_l = ['HarrisLinkedList', 'HelpOptimalLFList']
+algo_l = ['HelpOptimalLFList', 'HarrisLinkedList']
 percentages = [('50', '50', '0'), ('20', '10', '70'), ('9', '1', '90')]
 duration = '5'
 for data_size in data_sizes:
