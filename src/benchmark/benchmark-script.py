@@ -5,7 +5,7 @@ sum_e = 0
 num_of_threads = 2
 data_sizes = ['128', '512', '1024', '4096']
 binary = './benchmark'
-algo_l = ['HelpOptimalLFList', 'HarrisLinkedList']
+algo_l = ['HarrisLinkedList', 'HelpOptimalLFList']
 percentages = [('50', '50', '0'), ('20', '10', '70'), ('9', '1', '90')]
 duration = '5'
 for data_size in data_sizes:
@@ -24,7 +24,7 @@ for data_size in data_sizes:
                     out, err = p.communicate()
                     exitcode = p.returncode
                     sum_e = sum_e + int(int(out.split()[6])/1000000)
-                print data_size+' '+add_p+' '+rem_p+' '+con_p+' '+algo+' '+n_a+' '+str(int(sum_e/5))+' '
+                print data_size+' '+add_p+' '+rem_p+' '+con_p+' '+algo+' '+str(num_of_threads)+' '+str(int(sum_e/5))+' '
                 num_of_threads *= 2
                 sum_e = 0
             num_of_threads = 2
