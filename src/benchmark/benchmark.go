@@ -32,9 +32,7 @@ type benchmark struct {
 	presentKeys []int
 	sanityAdds [][]int
 	sanityRemoves [][]int
-	hoLFList list
-	//hoLFList *helpoptimal.HelpOptimalLFList
-	//harrisLL *harrisll.HarrisLL
+	listInst list
 }
 
 func newBenchmark() *benchmark {
@@ -79,7 +77,7 @@ func (bm *benchmark)initFlags() {
 	
 }
 func (bm *benchmark) sanityTest() {
-	fmt.Println("Entering Test Sanity")
+	//fmt.Println("Entering Test Sanity")
 	var keyAdded int
 	var keyRemoved int
 	var wg sync.WaitGroup
@@ -88,7 +86,7 @@ func (bm *benchmark) sanityTest() {
 	for i := 0; i < *bm.numOfThreads; i++ {
 		wg.Add(1)
 		go func(tid int) {
-			fmt.Printf("Entering thread %v\n", tid)
+			//fmt.Printf("Entering thread %v\n", tid)
 			chooseOperation := random(0, 2)
 			key := random(0, *bm.keySpaceSize)
 			numberOfAdd := make([]int, *bm.keySpaceSize)
@@ -109,15 +107,15 @@ func (bm *benchmark) sanityTest() {
 				default:
 
 					if chooseOperation == 1 {
-						if bm.hoLFList.Add(utils.NewKeyValue(float64(key))) {
+						if bm.listInst.Add(utils.NewKeyValue(float64(key))) {
 							numberOfAdd[key]++
-						} else if bm.hoLFList.Remove(utils.NewKeyValue(float64(key))) {
+						} else if bm.listInst.Remove(utils.NewKeyValue(float64(key))) {
 							numberOfRemove[key]++
 						}
 					} else {
-						if bm.hoLFList.Remove(utils.NewKeyValue(float64(key))) {
+						if bm.listInst.Remove(utils.NewKeyValue(float64(key))) {
 							numberOfRemove[key]++
-						} else if bm.hoLFList.Add(utils.NewKeyValue(float64(key))) {
+						} else if bm.listInst.Add(utils.NewKeyValue(float64(key))) {
 							numberOfAdd[key]++
 						}
 					}
@@ -129,14 +127,15 @@ func (bm *benchmark) sanityTest() {
 				bm.sanityAdds[tid][i] += numberOfAdd[i]
 				bm.sanityRemoves[tid][i] += numberOfRemove[i]
 			}
-			fmt.Printf("Exiting thread %v\n", tid)
+			//fmt.Printf("Exiting thread %v\n", tid)
 			wg.Done()			
 		}(i)
 	}
+	sleepTime := *bm.duration
 	for i := 0; i < *bm.numOfThreads; i++ {
 		startFlag <- true
 	}
-	time.Sleep(time.Second * 100)
+	time.Sleep(time.Second * time.Duration(sleepTime))
 	for i := 0; i < *bm.numOfThreads; i++ {
 		stopFlag <- true
 	}
@@ -150,7 +149,7 @@ func (bm *benchmark) sanityTest() {
 			keyRemoved += bm.sanityRemoves[tid][k]
 		}
 
-		if bm.hoLFList.Contains(utils.NewKeyValue(float64(k))) == true {
+		if bm.listInst.Contains(utils.NewKeyValue(float64(k))) == true {
 			if keyAdded != keyRemoved + 1 {
 				fmt.Println("First Sanity passed")
 				failedSanity = true
@@ -165,19 +164,19 @@ func (bm *benchmark) sanityTest() {
 		fmt.Println("Sanity Test Complete")
 	}
 	fmt.Println("Traversal Test :")
-	fmt.Println(bm.hoLFList.TraversalTest());
+	fmt.Println(bm.listInst.TraversalTest());
 }
 func (bm *benchmark) defineSet() {
 	switch *bm.algo {
 	case "HelpOptimalLFList":
-		bm.hoLFList = helpoptimal.NewHelpOptimalLFList()
+		bm.listInst = helpoptimal.NewHelpOptimalLFList()
 		break
 	case "HarrisLinkedList":
-		bm.hoLFList = harrisll.NewHarrisLL()
+		bm.listInst = harrisll.NewHarrisLL()
 		break
 	default:
 		fmt.Println("Default ALgo HelpOptimalLFList")
-		bm.hoLFList = helpoptimal.NewHelpOptimalLFList()
+		bm.listInst = helpoptimal.NewHelpOptimalLFList()
 	}
 		
 }
@@ -185,10 +184,10 @@ func (bm *benchmark) defineSet() {
 func (bm *benchmark) initializeSet() {
 	var key int
 	var added bool
-	fmt.Println("Intialize Set")
+	//fmt.Println("Intialize Set")
 	for i := 0; i < *bm.keySpaceSize/2; {
 		key = random(0, *bm.keySpaceSize);
-		added = bm.hoLFList.Add(utils.NewKeyValue(float64(key)))
+		added = bm.listInst.Add(utils.NewKeyValue(float64(key)))
 		if added == true {
 			i++
 		}
@@ -205,7 +204,7 @@ func (bm *benchmark) warmupVM() {
 	for i := 0; i < *bm.numOfThreads; i++ {
 		wg.Add(1)
 		go func(tid int) {
-			fmt.Printf("Entering thread %v\n", tid)
+			//fmt.Printf("Entering thread %v\n", tid)
 			chooseOperation := random(0, 100)
 			key := random(0, *bm.keySpaceSize)
 			numberOfOps := 0
@@ -225,11 +224,11 @@ func (bm *benchmark) warmupVM() {
 				default:
 
 					if chooseOperation < *bm.insertUpdateFraction {
-						bm.hoLFList.Add(utils.NewKeyValue(float64(key)))
+						bm.listInst.Add(utils.NewKeyValue(float64(key)))
 					} else if (chooseOperation < *bm.deleteFraction){
-						bm.hoLFList.Remove(utils.NewKeyValue(float64(key)))
+						bm.listInst.Remove(utils.NewKeyValue(float64(key)))
 					} else {
-						bm.hoLFList.Contains(utils.NewKeyValue(float64(key)))
+						bm.listInst.Contains(utils.NewKeyValue(float64(key)))
 					}
 					numberOfOps++
 					continue
@@ -237,14 +236,15 @@ func (bm *benchmark) warmupVM() {
 				break
 			}
 			bm.results[tid] = numberOfOps
-			fmt.Printf("Exiting thread %v\n", tid)
+			//fmt.Printf("Exiting thread %v\n", tid)
 			wg.Done()			
 		}(i)
 	}
+	sleepTime := *bm.warmUpTime
 	for i := 0; i < *bm.numOfThreads; i++ {
 		startFlag <- true
 	}
-	time.Sleep(time.Second * 1000)
+	time.Sleep(time.Second * time.Duration(sleepTime))
 	for i := 0; i < *bm.numOfThreads; i++ {
 		stopFlag <- true
 	}
@@ -254,16 +254,13 @@ func (bm *benchmark) warmupVM() {
 func (bm *benchmark) doBenchmark() {
 	var wg sync.WaitGroup
 	var totalOps int
-	var maxOps int
-	var minOps int
 	var throughput int
-	var fairness int
 	stopFlag := make(chan bool)
 	startFlag := make(chan bool)
 	for i := 0; i < *bm.numOfThreads; i++ {
 		wg.Add(1)
 		go func(tid int) {
-			fmt.Printf("Entering thread %v\n", tid)
+			//fmt.Printf("Entering thread %v\n", tid)
 			chooseOperation := random(0, 100)
 			key := random(0, *bm.keySpaceSize)
 			numberOfOps := 0
@@ -283,11 +280,11 @@ func (bm *benchmark) doBenchmark() {
 				default:
 
 					if chooseOperation < *bm.insertUpdateFraction {
-						bm.hoLFList.Add(utils.NewKeyValue(float64(key)))
+						bm.listInst.Add(utils.NewKeyValue(float64(key)))
 					} else if (chooseOperation < *bm.deleteFraction){
-						bm.hoLFList.Remove(utils.NewKeyValue(float64(key)))
+						bm.listInst.Remove(utils.NewKeyValue(float64(key)))
 					} else {
-						bm.hoLFList.Contains(utils.NewKeyValue(float64(key)))
+						bm.listInst.Contains(utils.NewKeyValue(float64(key)))
 					}
 					numberOfOps++
 					continue
@@ -295,46 +292,28 @@ func (bm *benchmark) doBenchmark() {
 				break
 			}
 			bm.results[tid] = numberOfOps
-			fmt.Printf("Exiting thread %v\n", tid)
+			//fmt.Printf("Exiting thread %v\n", tid)
 			wg.Done()			
 		}(i)
 	}
+	sleepTime := *bm.duration
 	beginTime := time.Now()
 	for i := 0; i < *bm.numOfThreads; i++ {
 		startFlag <- true
 	}
-	time.Sleep(time.Second * 1000)
+	time.Sleep(time.Second * time.Duration(sleepTime))
 	for i := 0; i < *bm.numOfThreads; i++ {
 		stopFlag <- true
 	}
 	wg.Wait()
 	timeElapsed := time.Since(beginTime)
 	timeElapsedSeconds := timeElapsed.Seconds()
-	maxOps = 0
 	for i := 0; i < *bm.numOfThreads; i++ {
 		totalOps += bm.results[i]
-		if maxOps < bm.results[i] {
-			maxOps = bm.results[i]
-		}
-			
 	}
-	minOps = maxOps
-	for i := 0; i < *bm.numOfThreads; i++ {
-		if minOps > bm.results[i] {
-			minOps = bm.results[i]
-		}
-	}
-	fmt.Printf("totalOps: %v 4*minOps: %v 4*maxOps: %v\n", totalOps, 4*minOps, 4*maxOps)
 	throughput = totalOps / int(timeElapsedSeconds)
-	allMinOps := *bm.numOfThreads * minOps / totalOps
-	allMaxOps := totalOps/(*bm.numOfThreads) * maxOps
-	fmt.Printf("allMinOps: %v allMaxOps: %v\n", allMaxOps, allMinOps)
-	if allMinOps < allMaxOps {
-		fairness = allMinOps
-	} else {
-		fairness = allMaxOps
-	}
-	fmt.Printf("Throughput: %v Fairness: %v\n", throughput, fairness)
+	
+	fmt.Printf("Algo: %v Throughput: %v\n", *bm.algo, throughput)
 }
 
 func random(min, max int) int {

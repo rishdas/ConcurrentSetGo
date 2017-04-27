@@ -2,7 +2,6 @@ package helpoptimal
 
 import (
 	"utils"
-	// "fmt"
 )
 
 type HelpOptimalLFList struct {
