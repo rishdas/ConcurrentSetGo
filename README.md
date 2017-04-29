@@ -1,4 +1,15 @@
 # ConcurrentSetGo
+$ tar -xJf code/sirdas-final-project.tar.xz
+$ cd ConcurrentSetGo/src
+$ ls
+$ ls
+benchmark				harrisll				utils
+final-project-report-b524-sirdas.pdf	helpoptimal
+
+Please see the final-project-report-b524-sirdas.pdf for final project.
+
+
+
 ConcurrentSetGo
 The idea of data structures used is taken from the following paper and converted to golang to strengthen the argument of language portability presented in the paper.
 
