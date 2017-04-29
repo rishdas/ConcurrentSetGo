@@ -1,11 +1,11 @@
 # ConcurrentSetGo
-$ tar -xJf code/sirdas-final-project.tar.xz
-$ cd ConcurrentSetGo/src
-$ ls
-$ ls
+$ tar -xJf code/sirdas-final-project.tar.xz <br />
+$ cd ConcurrentSetGo/src <br />
+$ ls <br />
+$ ls <br />
 benchmark				harrisll				utils
 final-project-report-b524-sirdas.pdf	helpoptimal
-
+<br />
 Please see the final-project-report-b524-sirdas.pdf for final project.
 
 
